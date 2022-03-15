@@ -5,7 +5,11 @@
 # which rake:multisite_migrate uses
 #
 # The protection is only needed in Dev and Test
-if ENV['RAILS_ENV'] != "production"
-  require 'migration/safe_migrate'
-  Migration::SafeMigrate.patch_active_record!
+if !Rails.env.production?
+  module FreedomPatches
+    module SafeMigrations
+      require 'migration/safe_migrate'
+      Migration::SafeMigrate.patch_active_record!
+    end
+  end
 end

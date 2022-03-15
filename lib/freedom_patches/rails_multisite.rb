@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-module RailsMultisite
-  class ConnectionManagement
-    def self.safe_each_connection
-      self.each_connection do |db|
+module FreedomPatches
+  module RailsMultisite
+    def safe_each_connection
+      each_connection do |db|
         begin
           yield(db) if block_given?
         rescue PG::ConnectionBad, PG::UnableToSend, PG::ServerError
@@ -30,15 +30,17 @@ module RailsMultisite
         end
       end
     end
-  end
 
-  class DiscoursePatches
-    def self.config
-      {
-        db_lookup: lambda do |env|
-          env["PATH_INFO"] == "/srv/status" ? "default" : nil
-        end
-      }
-    end
+    ::RailsMultisite::ConnectionManagement.extend(self)
+  end
+end
+
+class RailsMultisite::DiscoursePatches
+  def self.config
+    {
+      db_lookup: lambda do |env|
+        env["PATH_INFO"] == "/srv/status" ? "default" : nil
+      end
+    }
   end
 end
