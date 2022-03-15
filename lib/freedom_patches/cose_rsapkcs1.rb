@@ -6,13 +6,15 @@ require 'openssl/signature_algorithm/rsapkcs1'
 # 'cose' gem does not implement all algorithms from the Web Authentication
 # (WebAuthn) standard specification. This patch implements one of the missing
 # ones, RSASSA-PKCS1-v1_5.
-module COSE
-  module Algorithm
-    def self.registered_algorithm_ids
-      @registered_by_id.keys
+module FreedomPatches
+  module CoseRsapkcs1
+    module Algorithm
+      def registered_algorithm_ids
+        @registered_by_id.keys
+      end
     end
 
-    class RSAPKCS1 < SignatureAlgorithm
+    class RSAPKCS1 < COSE::Algorithm::SignatureAlgorithm
       attr_reader :hash_function
 
       def initialize(*args, hash_function:)
@@ -43,8 +45,9 @@ module COSE
       end
     end
 
-    register(RSAPKCS1.new(-257, 'RS256', hash_function: 'SHA256'))
-    register(RSAPKCS1.new(-258, 'RS384', hash_function: 'SHA384'))
-    register(RSAPKCS1.new(-259, 'RS512', hash_function: 'SHA512'))
+    COSE::Algorithm.register(RSAPKCS1.new(-257, 'RS256', hash_function: 'SHA256'))
+    COSE::Algorithm.register(RSAPKCS1.new(-258, 'RS384', hash_function: 'SHA384'))
+    COSE::Algorithm.register(RSAPKCS1.new(-259, 'RS512', hash_function: 'SHA512'))
+    COSE::Algorithm.extend(Algorithm)
   end
 end
