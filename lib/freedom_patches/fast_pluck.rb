@@ -2,42 +2,43 @@
 
 # Speeds up #pluck so its about 2.2x faster, importantly makes pluck avoid creation of a slew
 # of AR objects
-#
-#
-module FreedomPatches
-  module FastPluck
-    module Relation
-      def pluck(*column_names)
-        if loaded? && (column_names.map(&:to_s) - @klass.attribute_names - @klass.attribute_aliases.keys).empty?
-          return records.pluck(*column_names)
-        end
 
-        if has_include?(column_names.first)
-          relation = apply_join_dependency
-          relation.pluck(*column_names)
-        else
-          relation = spawn
+SanePatch.patch("activerecord", "~> 7.0.2") do
+  module FreedomPatches
+    module FastPluck
+      module Relation
+        def pluck(*column_names)
+          if loaded? && (column_names.map(&:to_s) - @klass.attribute_names - @klass.attribute_aliases.keys).empty?
+            return records.pluck(*column_names)
+          end
 
-          relation.select_values = column_names
+          if has_include?(column_names.first)
+            relation = apply_join_dependency
+            relation.pluck(*column_names)
+          else
+            relation = spawn
 
-          klass.connection.select_raw(relation.arel) do |result, _|
-            result.type_map = DB.type_map
-            result.nfields == 1 ? result.column_values(0) : result.values
+            relation.select_values = column_names
+
+            klass.connection.select_raw(relation.arel) do |result, _|
+              result.type_map = DB.type_map
+              result.nfields == 1 ? result.column_values(0) : result.values
+            end
           end
         end
       end
-    end
 
-    module PostgreSQLAdapter
-      def select_raw(arel, name = nil, binds = [], &block)
-        arel = arel_from_relation(arel)
-        sql, binds = to_sql_and_binds(arel, binds)
-        execute_and_clear(sql, name, binds, &block)
+      module PostgreSQLAdapter
+        def select_raw(arel, name = nil, binds = [], &block)
+          arel = arel_from_relation(arel)
+          sql, binds = to_sql_and_binds(arel, binds)
+          execute_and_clear(sql, name, binds, &block)
+        end
       end
-    end
 
-    ActiveRecord::Relation.prepend(Relation)
-    ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.prepend(PostgreSQLAdapter)
+      ActiveRecord::Relation.prepend(Relation)
+      ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.prepend(PostgreSQLAdapter)
+    end
   end
 end
 

@@ -6,10 +6,12 @@
 #
 # The protection is only needed in Dev and Test
 if !Rails.env.production?
-  module FreedomPatches
-    module SafeMigrations
-      require 'migration/safe_migrate'
-      Migration::SafeMigrate.patch_active_record!
+  SanePatch.patch("activerecord", "~> 7.0.2") do
+    module FreedomPatches
+      module SafeMigrations
+        require 'migration/safe_migrate'
+        Migration::SafeMigrate.patch_active_record!
+      end
     end
   end
 end
