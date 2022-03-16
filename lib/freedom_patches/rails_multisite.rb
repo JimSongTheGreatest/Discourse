@@ -8,10 +8,10 @@ module FreedomPatches
           yield(db) if block_given?
         rescue PG::ConnectionBad, PG::UnableToSend, PG::ServerError
           break if !defined?(RailsFailover::ActiveRecord)
-          break if db == RailsMultisite::ConnectionManagement::DEFAULT
+          break if db == ::RailsMultisite::ConnectionManagement::DEFAULT
 
           reading_role = :"#{db}_#{ActiveRecord.reading_role}"
-          spec = RailsMultisite::ConnectionManagement.connection_spec(db: db)
+          spec = ::RailsMultisite::ConnectionManagement.connection_spec(db: db)
 
           ActiveRecord::Base.connection_handlers[reading_role] ||= begin
             handler = ActiveRecord::ConnectionAdapters::ConnectionHandler.new

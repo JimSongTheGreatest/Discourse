@@ -163,7 +163,7 @@ module FreedomPatches
 
           execute_reload if @requires_reload
 
-          site = RailsMultisite::ConnectionManagement.current_db
+          site = ::RailsMultisite::ConnectionManagement.current_db
 
           by_site = @overrides_by_site[site]
           by_site ||= {}
