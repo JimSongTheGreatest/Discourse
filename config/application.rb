@@ -121,10 +121,8 @@ module Discourse
     # Custom directories with classes and modules you want to be autoloadable.
     config.autoload_paths << "#{root}/lib"
 
-    Rails.autoloaders.main.ignore("lib/freedom_patches",
-                                  "lib/tasks",
-                                  "lib/generators"
-                                 )
+    Rails.autoloaders.main.ignore("lib/tasks",
+                                  "lib/generators")
 
     config.eager_load_paths << "#{root}/lib"
 
