@@ -42,7 +42,7 @@ module FreedomPatches
 
     module HandleBarsTemplate
       def precompile_handlebars(string, input = nil)
-        "requirejs('discourse-common/lib/raw-handlebars').template(#{Barber::Precompiler.compile(string)});"
+        "requirejs('discourse-common/lib/raw-handlebars').template(#{::Barber::Precompiler.compile(string)});"
       end
 
       def compile_handlebars(string, input = nil)
